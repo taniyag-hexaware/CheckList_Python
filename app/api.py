@@ -102,20 +102,56 @@ def taskDelete(id):
     resp.status_code = 200
     return resp
 
+# @app.route('/task/update/<tid>', methods=['PUT'])
+# def taskUpdate(tid):
+#     _id = tid
+#     _json = request.json
+#     _name = _json['name']
+#     _description = _json['description']
+#     _wordOrderId = _json['wordOrderId']
+#     if _name and _id and request.method == 'PUT':
+#         mongo.db.tasks.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'name':_name, 'description':_description,'wordOrderId':ObjectId(_wordOrderId)}})
+#         resp = jsonify("task updated successfully")
+#         resp.status_code = 200
+#         return resp
+#     else:
+#         return not_found()
+
 @app.route('/task/update/<tid>', methods=['PUT'])
-def taskUpdate(tid):
-    _id = tid
-    _json = request.json
-    _name = _json['name']
-    _description = _json['description']
-    _wordOrderId = _json['wordOrderId']
-    if _name and _id and request.method == 'PUT':
-        mongo.db.tasks.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'name':_name, 'description':_description,'wordOrderId':ObjectId(_wordOrderId)}})
-        resp = jsonify("task updated successfully")
-        resp.status_code = 200
-        return resp
-    else:
-        return not_found()
+def update_task(tid):
+    """
+       Function to update the user.
+       """
+    try:
+        # Get the value which needs to be updated
+        try:
+            _id = tid
+            _json = request.json
+            _name = _json['task_name']
+            _description = _json['task_description']
+            _wordOrderId = _json['wordOrderId']
+            _name and _id and request.method == 'PUT'
+        except:
+            # Bad request as the request body is not available
+            # Add message for debugging purpose
+            return "Bad request as the request body is not avalaible or wrong", 400
+
+        # Updating the user
+        records_updated = mongo.db.tasks.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'task_name':_name, 'task_description':_description,'wordOrderId':ObjectId(_wordOrderId)}})
+       
+
+        # Check if resource is updated
+        if records_updated.modified_count>0 :
+            # Prepare the response as resource is updated successfully
+            return "Task updated successfully", 200
+        else:
+            # Bad request as the resource is not available to update
+            # Add message for debugging purpose
+            return "Bad Request", 404
+    except:
+        # Error while trying to update the resource
+        # Add message for debugging purpose
+        return "Internal Server Error", 500
 
 
 
