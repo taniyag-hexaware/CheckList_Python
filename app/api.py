@@ -28,7 +28,7 @@ def add_workOrder():
 
 @app.route('/workOrders')
 def workOrders():
-    workOrders = mongo.db.workorders.find()
+    workOrders = mongo.db.workorders.find({},{'name':1})
     resp = dumps(workOrders)
     return resp
 
@@ -85,7 +85,7 @@ def add_task():
 
 @app.route('/tasks')
 def tasks():
-    tasks = mongo.db.tasks.find()
+    tasks = mongo.db.tasks.find({},{'task_name':1})
     resp = dumps(tasks)
     return resp
 
@@ -102,20 +102,20 @@ def taskDelete(id):
     resp.status_code = 200
     return resp
 
-# @app.route('/task/update/<tid>', methods=['PUT'])
-# def task(tid):
-#     _id = tid
-#     _json = request.json
-#     _name = _json['name']
-#     _description = _json['description']
-#     _wordOrderId = _json['wordOrderId']
-#     if _name and _id and request.method == 'PUT':
-#         mongo.db.tasks.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'name':_name, 'description':_description,'wordOrderId':ObjectId(_wordOrderId)}})
-#         resp = jsonify("task updated successfully")
-#         resp.status_code = 200
-#         return resp
-#     else:
-#         return not_found()
+@app.route('/task/update/<tid>', methods=['PUT'])
+def taskUpdate(tid):
+    _id = tid
+    _json = request.json
+    _name = _json['name']
+    _description = _json['description']
+    _wordOrderId = _json['wordOrderId']
+    if _name and _id and request.method == 'PUT':
+        mongo.db.tasks.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'name':_name, 'description':_description,'wordOrderId':ObjectId(_wordOrderId)}})
+        resp = jsonify("task updated successfully")
+        resp.status_code = 200
+        return resp
+    else:
+        return not_found()
 
 
 
