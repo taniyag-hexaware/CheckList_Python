@@ -37,6 +37,8 @@ def workOrders():
 @app.route('/workOrder/<id>')
 def workOrder(id):
     workOrder = mongo.db.workorders.find_one({'_id':ObjectId(id)})
+    workOrder1 = mongo.db.workorders.find({'_id':ObjectId(id)}).count()
+    print(workOrder1)
     resp = dumps(workOrder)
     app.logger.info('WorkOrder sucessfully displayed with id '+id)
     return resp
@@ -75,9 +77,10 @@ def add_task():
     _task_name = _json['task_name']
     _task_description = _json['task_description']
     _wordOrderId = _json['wordOrderId']
+    print(mongo.db.workorders.find({"_id":ObjectId(_wordOrderId)}).count() > 0)
     
 
-    if _task_name and request.method == 'POST':
+    if _task_name and mongo.db.workorders.find({"_id":ObjectId(_wordOrderId)}).count() > 0 and request.method == 'POST':
         id = mongo.db.tasks.insert({'task_name':_task_name, 'task_description':_task_description,'wordOrderId':ObjectId(_wordOrderId)})
         # print()
         resp = jsonify("Task added successfully")
