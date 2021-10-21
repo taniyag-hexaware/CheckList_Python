@@ -1,22 +1,43 @@
+from typing import Optional
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 from flask import jsonify, request
+from pydantic import BaseModel
+from flask_pydantic import validate
+
 
 from app import app
 
 mongo = PyMongo(app)
 
+class workOrder(BaseModel):
+    name:str
+    description:str
+
+class task(BaseModel):
+    task_name:str
+    task_description:str
+    wordOrderId:str 
+
+class workOrder_put(BaseModel):
+    name:str
+    description:str
+    id:str
+
+
 #APIs for workOrder - GET,POST,DELETE,PUT
 
 @app.route('/workOrder/create', methods=['POST'])
-def add_workOrder():
+@validate()
+def add_workOrder(body : workOrder):
     _json = request.json
-    _name = _json['name']
-    _description = _json['description']
+    _name = body.name
+    _description = body.description
 
     if _name and request.method == 'POST':
         id = mongo.db.workorders.insert({'name':_name, 'description':_description})
+        #print(id)
         # print()
         resp = jsonify("User added successfully")
         # resp ={"_id":id, 'name':_name, 'description':_description} ,
@@ -35,14 +56,16 @@ def workOrders():
     return resp
 
 @app.route('/workOrder/<id>')
-def workOrder(id):
+@validate()
+def workOrder(id:str):
     workOrder = mongo.db.workorders.find_one({'_id':ObjectId(id)})
     resp = dumps(workOrder)
     app.logger.info('WorkOrder sucessfully displayed with id '+id)
     return resp
 
 @app.route('/workOrder/delete/<id>', methods=['DELETE'])
-def workOrderDelete(id):
+@validate()
+def workOrderDelete(id:str):
     mongo.db.workorders.delete_one({'_id':ObjectId(id)})
     resp = jsonify("The workOrder with Id " + id + " has been deleted")
     resp.status_code = 200
@@ -50,11 +73,12 @@ def workOrderDelete(id):
     return resp
 
 @app.route('/workOrder/update/<id>', methods=['PUT'])
-def workOrderUpdate(id):
+@validate()
+def workOrderUpdate(body: workOrder, id):
     _id = id
     _json = request.json
-    _name = _json['name']
-    _description = _json['description']
+    _name = body.name
+    _description = body.description
     if _name and _id and request.method == 'PUT':
         mongo.db.workorders.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'name':_name, 'description':_description}})
         resp = jsonify("User updated successfully")
@@ -70,11 +94,12 @@ def workOrderUpdate(id):
 
 
 @app.route('/task/create', methods=['POST'])
-def add_task():
+@validate()
+def add_task(body: task):
     _json = request.json
-    _task_name = _json['task_name']
-    _task_description = _json['task_description']
-    _wordOrderId = _json['wordOrderId']
+    _task_name = body.task_name
+    _task_description = body.task_description
+    _wordOrderId = body.wordOrderId
     
 
     if _task_name and request.method == 'POST':
@@ -102,6 +127,14 @@ def task(id):
     resp = dumps(task)
     app.logger.info('Task sucessfully displayed with id '+id) 
     return resp
+
+
+@app.route('/task/work/<wid>')
+def task_workOrder(wid):
+    task = mongo.db.tasks.find_one({'wordOrderId':ObjectId(wid)})
+    resp = dumps(task)
+    app.logger.info('Task sucessfully displayed with workOrder id '+wid) 
+    return resp    
 
 @app.route('/task/delete/<id>', methods=['DELETE'])
 def taskDelete(id):
@@ -136,31 +169,36 @@ def update_task(tid):
         try:
             _id = tid
             _json = request.json
-            _name = _json['task_name']
-            _description = _json['task_description']
+            _task_name = _json['task_name']
+            _task_description = _json['task_description']
             _wordOrderId = _json['wordOrderId']
-            _name and _id and request.method == 'PUT'
+            _task_name and _id and request.method == 'PUT'
         except:
             # Bad request as the request body is not available
             # Add message for debugging purpose
+            app.logger.error('Bad request as the request body is not avalaible or wrong')
             return "Bad request as the request body is not avalaible or wrong", 400
 
         # Updating the user
-        records_updated = mongo.db.tasks.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'task_name':_name, 'task_description':_description,'wordOrderId':ObjectId(_wordOrderId)}})
+        records_updated = mongo.db.tasks.update_one({'_id':ObjectId(_id['$oid']) if '$oid' in _id else ObjectId(_id)},{'$set':{'task_name':_task_name, 'task_description':_task_description,'wordOrderId':ObjectId(_wordOrderId)}})
        
 
         # Check if resource is updated
         if records_updated.modified_count>0 :
             # Prepare the response as resource is updated successfully
+            app.logger.info('Task sucessfully updated') 
             return "Task updated successfully", 200
         else:
             # Bad request as the resource is not available to update
             # Add message for debugging purpose
+            app.logger.error('Bad Request 404 error') 
             return "Bad Request", 404
     except:
         # Error while trying to update the resource
         # Add message for debugging purpose
+        app.logger.error('Task not found - Internal server error') 
         return "Internal Server Error", 500
+
 
 
 
@@ -181,7 +219,21 @@ def not_found(error=None):
 
 
 
-        
+class ResponseModel(BaseModel):
+  id: int
+  age: int
+  name: str
+  nickname: Optional[str]
+
+# Example 1: query parameters only
+@app.route("/demo", methods=["GET"])
+@validate()
+def get():
+  
+  return ResponseModel(
+    age="41",
+    id=0, name=10, nickname="123"
+    )      
 
 
     
