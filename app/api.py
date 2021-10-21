@@ -6,6 +6,8 @@ from flask import jsonify, request
 from pydantic import BaseModel
 from flask_pydantic import validate
 
+from werkzeug.utils import send_from_directory
+
 
 from app import app
 
@@ -20,10 +22,11 @@ class task(BaseModel):
     task_description:str
     wordOrderId:str 
 
-class workOrder_put(BaseModel):
-    name:str
-    description:str
-    id:str
+#Swagger
+
+@app.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static',path)
 
 
 #APIs for workOrder - GET,POST,DELETE,PUT
@@ -59,6 +62,8 @@ def workOrders():
 @validate()
 def workOrder(id:str):
     workOrder = mongo.db.workorders.find_one({'_id':ObjectId(id)})
+    workOrder1 = mongo.db.workorders.find({'_id':ObjectId(id)}).count()
+    print(workOrder1)
     resp = dumps(workOrder)
     app.logger.info('WorkOrder sucessfully displayed with id '+id)
     return resp
@@ -102,7 +107,7 @@ def add_task(body: task):
     _wordOrderId = body.wordOrderId
     
 
-    if _task_name and request.method == 'POST':
+    if _task_name and mongo.db.workorders.find({"_id":ObjectId(_wordOrderId)}).count() > 0 and request.method == 'POST':
         id = mongo.db.tasks.insert({'task_name':_task_name, 'task_description':_task_description,'wordOrderId':ObjectId(_wordOrderId)})
         # print()
         resp = jsonify("Task added successfully")
@@ -129,11 +134,11 @@ def task(id):
     return resp
 
 
-@app.route('/task/work/<wid>')
-def task_workOrder(wid):
-    task = mongo.db.tasks.find_one({'wordOrderId':ObjectId(wid)})
+@app.route('/task/work/<id>')
+def task_workOrder(id):
+    task = mongo.db.tasks.find_one({'wordOrderId':ObjectId(id)})
     resp = dumps(task)
-    app.logger.info('Task sucessfully displayed with workOrder id '+wid) 
+    app.logger.info('Task sucessfully displayed with workOrder id '+id) 
     return resp    
 
 @app.route('/task/delete/<id>', methods=['DELETE'])
@@ -219,21 +224,7 @@ def not_found(error=None):
 
 
 
-class ResponseModel(BaseModel):
-  id: int
-  age: int
-  name: str
-  nickname: Optional[str]
 
-# Example 1: query parameters only
-@app.route("/demo", methods=["GET"])
-@validate()
-def get():
-  
-  return ResponseModel(
-    age="41",
-    id=0, name=10, nickname="123"
-    )      
 
 
     

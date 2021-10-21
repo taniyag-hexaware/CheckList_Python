@@ -1,0 +1,438 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is the swagger display for basic CURD APIs of the checklist app. It has two models - workOrder and task. ",
+    "version": "1.0.0",
+    "title": "Checklist App",
+    "contact": {
+      "email": "TaniyaG@hexaware.com"
+    }
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/workOrder/create": {
+      "post": {
+        "tags": [
+          "workOrder"
+        ],
+        "summary": "Add a new workOrder to the checklist",
+        "description": "POST API",
+        "operationId": "add_workOrder",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Name and Description needs to be added ",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/workOrder"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully entered workorder"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Something went wrong while creating new workOrder"
+          }
+        }
+      }
+    },
+    "/workOrder/update/{id}": {
+      "put": {
+        "tags": [
+          "workOrder"
+        ],
+        "summary": "Update an existing workOrder",
+        "description": "Add a name or description",
+        "operationId": "workOrderUpdate",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id that need to be updated",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updated workOrder object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/workOrder"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated workorder"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "WorkOrder not found"
+          },
+          "405": {
+            "description": "Validation exception"
+          }
+        }
+      }
+    },
+    "/workOrders": {
+      "get": {
+        "tags": [
+          "workOrder"
+        ],
+        "summary": "Displays all the workOrders",
+        "description": "Shows the name and description of all the workOrders",
+        "operationId": "workOrders",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/workOrder"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value"
+          }
+        }
+      }
+    },
+    "/workOrder/{id}": {
+      "get": {
+        "tags": [
+          "workOrder"
+        ],
+        "summary": "Finds workOrder by id",
+        "description": "Muliple tags can be provided with comma separated strings. ",
+        "operationId": "workOrder",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "This is unique identifier of workorder",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/workOrder"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tag value"
+          }
+        }
+      }
+    },
+    "/workOrder/delete/{id}": {
+      "delete": {
+        "tags": [
+          "workOrder"
+        ],
+        "summary": "Deletes a workOrder",
+        "description": "Enter an id and delete workorder",
+        "operationId": "workOrderDelete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "WorkOrder id to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted workorder"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Pet not found"
+          }
+        }
+      }
+    },
+    "/task/create": {
+      "post": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Add a new task to the checklist",
+        "description": "POST API",
+        "operationId": "add_task",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Name and Description needs to be added ",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/task"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully entered task"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Something went wrong while creating new task"
+          }
+        }
+      }
+    },
+    "/task/update/{id}": {
+      "put": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Update an existing task",
+        "description": "Add a name or description",
+        "operationId": "update_task",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id that need to be updated",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Updated task object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/task"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated task"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "WorkOrder not found"
+          },
+          "405": {
+            "description": "Validation exception"
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Displays all the workOrders",
+        "description": "Shows the name and description of all the task",
+        "operationId": "tasks",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/task"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value"
+          }
+        }
+      }
+    },
+    "/task/{id}": {
+      "get": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Finds task by id",
+        "description": "Muliple tags can be provided with comma separated strings. ",
+        "operationId": "task",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "This is unique identifier of task",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/task"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tag value"
+          }
+        }
+      }
+    },
+    "/task/work/{id}": {
+      "get": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Finds task by workorder id",
+        "description": "Muliple tags can be provided with comma separated strings. ",
+        "operationId": "task_workOrder",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "This is unique identifier of workOrder",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/task"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tag value"
+          }
+        }
+      }
+    },
+    "/task/delete/{id}": {
+      "delete": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Deletes a task",
+        "description": "Enter an id and delete task",
+        "operationId": "taskDelete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "task id to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted task"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "task not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "workOrder": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "task_name": {
+          "type": "string"
+        },
+        "task_description": {
+          "type": "string"
+        },
+        "wordOrderId": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
