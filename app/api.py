@@ -2,6 +2,7 @@ from flask_pymongo import PyMongo
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 from flask import jsonify, request
+from pydantic import BaseModel
 
 from app import app
 
