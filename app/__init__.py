@@ -5,7 +5,6 @@ from flask_pymongo import PyMongo
 from config import *
 import logging
 from flask_compress import Compress
-from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 
 # Place where app is defined
@@ -23,15 +22,3 @@ logging.basicConfig(filename='record.log',level=logging.DEBUG, format=f'%(asctim
 from app import api
 #from app import task
 
-### swagger specific ###
-SWAGGER_URL = '/swagger'
-API_URL = '/static/swagger.json'
-SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    # config={
-    #     'app_name': "CheckList_Python"
-    # }
-)
-app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
-### end swagger specific ###

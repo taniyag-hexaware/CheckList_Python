@@ -5,15 +5,30 @@ from bson.objectid import ObjectId
 from flask import jsonify, request
 from pydantic import BaseModel
 from flask_pydantic import validate
-
+from pydantic.types import constr
+from flask_swagger_ui import get_swaggerui_blueprint
 from werkzeug.utils import send_from_directory
 
 
 from app import app
 
+
+### swagger specific ###
+SWAGGER_URL = '/swagger'
+API_URL = '/static/swagger.json'
+SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    # config={
+    #     'app_name': "CheckList_Python"
+    # }
+)
+app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+### end swagger specific ###
+
 mongo = PyMongo(app)
 
-class workOrder(BaseModel):
+class WorkOrder(BaseModel):
     name:str
     description:str
 
@@ -21,6 +36,10 @@ class task(BaseModel):
     task_name:str
     task_description:str
     wordOrderId:str 
+
+class WorkOrderPut(BaseModel):
+    orm_mode=True
+    wid:constr(min_length=24,max_length=24)    
 
 #Swagger
 
@@ -33,7 +52,7 @@ def send_static(path):
 
 @app.route('/workOrder/create', methods=['POST'])
 @validate()
-def add_workOrder(body : workOrder):
+def add_workOrder(body : WorkOrder):
     _json = request.json
     _name = body.name
     _description = body.description
@@ -77,10 +96,10 @@ def workOrderDelete(id:str):
     app.logger.info('WorkOrder sucessfully deleted wit id '+id)
     return resp
 
-@app.route('/workOrder/update/<id>', methods=['PUT'])
+@app.route('/workOrder/update/<wid>', methods=['PUT'])
 @validate()
-def workOrderUpdate(body: workOrder, id):
-    _id = id
+def workOrderUpdate(body: WorkOrder,wid: WorkOrderPut):
+    _id = wid
     _json = request.json
     _name = body.name
     _description = body.description
@@ -107,7 +126,7 @@ def add_task(body: task):
     _wordOrderId = body.wordOrderId
     
 
-    if _task_name and mongo.db.workorders.find({"_id":ObjectId(_wordOrderId)}).count() > 0 and request.method == 'POST':
+    if _task_name and mongo.db.workorders.find({"_id":ObjectId(_wordOrderId)}).count() == 1 and request.method == 'POST':
         id = mongo.db.tasks.insert({'task_name':_task_name, 'task_description':_task_description,'wordOrderId':ObjectId(_wordOrderId)})
         # print()
         resp = jsonify("Task added successfully")
@@ -164,15 +183,15 @@ def taskDelete(id):
 #     else:
 #         return not_found()
 
-@app.route('/task/update/<tid>', methods=['PUT'])
-def update_task(tid):
+@app.route('/task/update/<id>', methods=['PUT'])
+def update_task(id):
     """
        Function to update the user.
        """
     try:
         # Get the value which needs to be updated
         try:
-            _id = tid
+            _id = id
             _json = request.json
             _task_name = _json['task_name']
             _task_description = _json['task_description']
