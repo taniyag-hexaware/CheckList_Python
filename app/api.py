@@ -97,10 +97,10 @@ def workOrderDelete(id:str):
     app.logger.info('WorkOrder sucessfully deleted wit id '+id)
     return resp
 
-@app.route('/workOrder/update/<wid>', methods=['PUT'])
+@app.route('/workOrder/update/<id>', methods=['PUT'])
 @validate()
-def workOrderUpdate(body: WorkOrder,wid: str):
-    _id = wid
+def workOrderUpdate(body: WorkOrder,id: str ):
+    _id = id
     _json = request.json
     _name = body.name
     _description = body.description
