@@ -49,6 +49,9 @@ class WorkOrderPut(BaseModel):
 
 
 #APIs for workOrder - GET,POST,DELETE,PUT
+@app.route('/')
+def homePage():
+    return "Welcome To checkpyth"
 
 @app.route('/workOrder/create', methods=['POST'])
 @validate()
