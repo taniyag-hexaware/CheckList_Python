@@ -32,14 +32,12 @@ class WorkOrder(BaseModel):
     name:str
     description:str
 
-class task(BaseModel):
+class Task(BaseModel):
     task_name:str
     task_description:str
     wordOrderId:str 
 
-class WorkOrderPut(BaseModel):
-    orm_mode=True
-    wid:constr(min_length=24,max_length=24)    
+ 
 
 #Swagger
 
@@ -101,7 +99,7 @@ def workOrderDelete(id:str):
 
 @app.route('/workOrder/update/<wid>', methods=['PUT'])
 @validate()
-def workOrderUpdate(body: WorkOrder,wid: WorkOrderPut):
+def workOrderUpdate(body: WorkOrder,wid: str):
     _id = wid
     _json = request.json
     _name = body.name
@@ -122,7 +120,7 @@ def workOrderUpdate(body: WorkOrder,wid: WorkOrderPut):
 
 @app.route('/task/create', methods=['POST'])
 @validate()
-def add_task(body: task):
+def add_task(body: Task):
     _json = request.json
     _task_name = body.task_name
     _task_description = body.task_description
@@ -149,7 +147,8 @@ def tasks():
     return resp
 
 @app.route('/task/<id>')
-def task(id):
+@validate()
+def task(id: str):
     task = mongo.db.tasks.find_one({'_id':ObjectId(id)})
     resp = dumps(task)
     app.logger.info('Task sucessfully displayed with id '+id) 
@@ -157,14 +156,16 @@ def task(id):
 
 
 @app.route('/task/work/<id>')
-def task_workOrder(id):
+@validate()
+def task_workOrder(id: str):
     task = mongo.db.tasks.find_one({'wordOrderId':ObjectId(id)})
     resp = dumps(task)
     app.logger.info('Task sucessfully displayed with workOrder id '+id) 
     return resp    
 
 @app.route('/task/delete/<id>', methods=['DELETE'])
-def taskDelete(id):
+@validate()
+def taskDelete(id: str):
     mongo.db.tasks.delete_one({'_id':ObjectId(id)})
     resp = jsonify("The task with Id " + id + " has been deleted")
     resp.status_code = 200
@@ -187,7 +188,8 @@ def taskDelete(id):
 #         return not_found()
 
 @app.route('/task/update/<id>', methods=['PUT'])
-def update_task(id):
+@validate()
+def update_task(id: str, body: Task ):
     """
        Function to update the user.
        """
@@ -196,9 +198,9 @@ def update_task(id):
         try:
             _id = id
             _json = request.json
-            _task_name = _json['task_name']
-            _task_description = _json['task_description']
-            _wordOrderId = _json['wordOrderId']
+            _task_name = body.task_name
+            _task_description = body.task_description
+            _wordOrderId = body.wordOrderId
             _task_name and _id and request.method == 'PUT'
         except:
             # Bad request as the request body is not available
